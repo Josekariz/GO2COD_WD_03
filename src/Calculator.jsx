@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const Calculator = () => {
     const [input, setInput] = useState('');
     const [result, setResult] = useState('');
+    const inputRef = useRef(input);
+
+    // Sync the ref with the input state
+    useEffect(() => {
+        inputRef.current = input;
+    }, [input]);
 
     // Handle keyboard input
     useEffect(() => {
@@ -10,6 +16,7 @@ const Calculator = () => {
             if ((e.key >= '0' && e.key <= '9') || ['+', '-', '*', '/'].includes(e.key)) {
                 setInput((prev) => prev + e.key);
             } else if (e.key === 'Enter') {
+                e.preventDefault();
                 calculateResult();
             } else if (e.key === 'Backspace') {
                 setInput((prev) => prev.slice(0, -1));
@@ -22,11 +29,15 @@ const Calculator = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    // Calculate result
+    // Calculate result using the latest input value from inputRef
     const calculateResult = () => {
         try {
-            setResult(eval(input).toString());
-        } catch {
+            if (inputRef.current.trim() !== "") {
+                setResult(eval(inputRef.current).toString());
+            } else {
+                setResult('Error');
+            }
+        } catch (error) {
             setResult('Error');
         }
     };
@@ -63,26 +74,16 @@ const Calculator = () => {
                     <Button onClick={() => handleInput('4')}>4</Button>
                     <Button onClick={() => handleInput('5')}>5</Button>
                     <Button onClick={() => handleInput('6')}>6</Button>
-                    <Button onClick={() => handleInput('/')}>
-                        /
-                    </Button>
+                    <Button onClick={() => handleInput('/')}>/</Button>
                     <Button onClick={() => handleInput('1')}>1</Button>
                     <Button onClick={() => handleInput('2')}>2</Button>
                     <Button onClick={() => handleInput('3')}>3</Button>
-                    <Button onClick={() => handleInput('*')}>
-                        *
-                    </Button>
+                    <Button onClick={() => handleInput('*')}>*</Button>
                     <Button onClick={() => handleInput('0')}>0</Button>
                     <Button onClick={() => handleInput('.')}>.</Button>
-                    <Button onClick={() => handleInput('-')}>
-                        -
-                    </Button>
-                    <Button onClick={() => handleInput('+')}>
-                        +
-                    </Button>
-                    <Button className="col-span-4" onClick={() => handleInput('=')}>
-                        =
-                    </Button>
+                    <Button onClick={() => handleInput('-')}>-</Button>
+                    <Button onClick={() => handleInput('+')}>+</Button>
+                    <Button className="col-span-4" onClick={() => handleInput('=')}>=</Button>
                 </div>
             </div>
         </div>
